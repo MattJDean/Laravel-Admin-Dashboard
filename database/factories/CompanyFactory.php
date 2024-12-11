@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Str;
 
-use Intervention\Image\src\Image;
+use Illuminate\Support\Facades\Http;
 
 class CompanyFactory extends Factory
 {
@@ -17,6 +17,21 @@ class CompanyFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    private function getRandomLogo()
+    {
+        // Get all files in the 'logos' directory
+        $files = Storage::disk('public')->files('logos');
+
+        if (count($files) > 0) {
+            // Pick a random file
+            $randomFile = $files[array_rand($files)];
+            // Return the URL to the file
+            return ''. $randomFile;
+        }
+
+        return null; // Return null if no files are found
+    }
     public function definition()
     {
         // Generate base components for the company name
@@ -34,6 +49,7 @@ class CompanyFactory extends Factory
 
         $symbolicPart = $this->faker->optional(0.5)->randomElement([
             '& Sons', '& Daughters', '& Co.', 'Worldwide', 'International',
+
         ]);
 
         // Add variation with optional suffixes
@@ -65,26 +81,16 @@ class CompanyFactory extends Factory
         // Generate the website URL based on the email domain
         $website = 'https://www.' . $slug . $domainExtension;
 
-         // Fetch all SVG files in the storage/public/logos directory
-         $logos = Storage::disk('public')->files('logos');
-         $randomLogo = $this->faker->randomElement($logos);
-
-         // Prepare new logo path
-        $resizedLogoPath = 'logos/resized_' . basename($randomLogo);
-
-        // Resize the logo to 100x100 and save it
-        $logoContents = Storage::disk('public')->get($randomLogo);
-        $resizedImage = Image::make($logoContents)->resize(100, 100, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
-        Storage::disk('public')->put($resizedLogoPath, $resizedImage->encode());
+        // Fetch a random file from the public/logos directory
+        $logoPath = $this->getRandomLogo();
 
         return [
             'name' => $companyName,
             'email' => $email,
-            'logo' => $resizedLogoPath,
+            'logo' => $logoPath,
             'website' => $website,
         ];
     }
+
+
 }

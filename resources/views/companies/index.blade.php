@@ -21,7 +21,7 @@
                 <td class="p-2 border">{{ $company->email }}</td>
                 <td class="p-2 border">
                     @if ($company->logo)
-                    <img src="{{ asset('storage/' . $company->logo) }}" alt="Logo" class="h-10 w-auto rounded-full">
+                    <img src="{{ asset('storage/' . $company->logo) }}" alt="Logo" class="h-10 w-auto object-contain scale-y-100 rounded-full">
                     @endif
                 </td>
                 <td class="p-2 border">{{ $company->website }}</td>
